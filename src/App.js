@@ -10,6 +10,8 @@ function App() {
       {page === "dashboard" && <Dashboard setPage={setPage} />}
       {page === "carousel" && <Carousel setPage={setPage} />}
       {page === "game" && <WhackAMole setPage={setPage} />}
+      {/* NEW: show Tic Tac Toe when page state is "tictactoe". */}
+      {page === "tictactoe" && <TicTacToe setPage={setPage} />}
     </div>
   );
 }
@@ -31,6 +33,11 @@ function Menu({ setPage }) {
 
       <button onClick={() => setPage("game")}>
         🐹 Whack A Mole
+      </button>
+
+      {/* NEW: menu button that switches to the Tic Tac Toe page. */}
+      <button onClick={() => setPage("tictactoe")}>
+        ⭕ Tic Tac Toe
       </button>
     </div>
   );
@@ -177,6 +184,202 @@ function WhackAMole({ setPage }) {
       <button onClick={startGame}>
         {playing ? "Restart" : "Start Game"}
       </button>
+    </div>
+  );
+}
+
+/* ================= TIC TAC TOE ARENA (INTERACTIVE) ================= */
+
+// Shape options: X, O, star (★), diamond (◆), circle (●), triangle (▲).
+// Add or remove symbols here to change the picker buttons.
+const SYMBOL_OPTIONS = ["X", "O", "★", "◆", "●", "▲"];
+
+const DEFAULT_PLAYER_ONE_SYMBOL = "X";
+const DEFAULT_PLAYER_TWO_SYMBOL = "O";
+
+// Exported for MainApp.js — keeps all Tic Tac Toe code in this file.
+export function TicTacToe({ setPage }) {
+  // STATE: 3x3 board stored as an array of 9 cells (null = empty).
+  const [board, setBoard] = useState(Array(9).fill(null));
+
+  // STATE: true = Player 1 turn, false = Player 2 turn.
+  const [isPlayerOneTurn, setIsPlayerOneTurn] = useState(true);
+
+  // STATE: each player picks their own shape before/during play.
+  const [playerOneSymbol, setPlayerOneSymbol] = useState(DEFAULT_PLAYER_ONE_SYMBOL);
+  const [playerTwoSymbol, setPlayerTwoSymbol] = useState(DEFAULT_PLAYER_TWO_SYMBOL);
+
+  // WINNER CHECK: returns winner symbol + which 3 squares won (for glow highlight).
+  function getWinnerInfo(currentBoard) {
+    const winningLines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (const line of winningLines) {
+      const [a, b, c] = line;
+
+      if (
+        currentBoard[a] &&
+        currentBoard[a] === currentBoard[b] &&
+        currentBoard[a] === currentBoard[c]
+      ) {
+        return { winner: currentBoard[a], winningLine: line };
+      }
+    }
+
+    return { winner: null, winningLine: [] };
+  }
+
+  const { winner, winningLine } = getWinnerInfo(board);
+
+  // DRAW CHECK: every cell filled and no winner.
+  const isDraw = board.every((cell) => cell !== null) && !winner;
+
+  // Symbol for the player whose turn it is right now.
+  const currentSymbol = isPlayerOneTurn ? playerOneSymbol : playerTwoSymbol;
+
+  // STATUS: turn display, congratulations on win, or draw message.
+  let statusText = `Player ${isPlayerOneTurn ? "1" : "2"} turn: ${currentSymbol}`;
+  if (winner) {
+    statusText = `Congratulations! ${winner} wins the game!`;
+  } else if (isDraw) {
+    statusText = "It's a draw! Great battle!";
+  }
+
+  // CLICK: state -> user click -> update state -> check winner -> re-render UI.
+  function handleSquareClick(index) {
+    if (board[index] || winner) return;
+
+    const nextBoard = [...board];
+    nextBoard[index] = currentSymbol;
+
+    setBoard(nextBoard);
+    setIsPlayerOneTurn(!isPlayerOneTurn);
+  }
+
+  // RESTART: clear the board; keep chosen shapes.
+  function resetGame() {
+    setBoard(Array(9).fill(null));
+    setIsPlayerOneTurn(true);
+  }
+
+  // SHAPE PICKER: prevent both players from choosing the same shape.
+  function handleSymbolChange(playerNumber, newSymbol) {
+    if (playerNumber === 1 && newSymbol === playerTwoSymbol) return;
+    if (playerNumber === 2 && newSymbol === playerOneSymbol) return;
+
+    if (playerNumber === 1) {
+      setPlayerOneSymbol(newSymbol);
+    } else {
+      setPlayerTwoSymbol(newSymbol);
+    }
+
+    resetGame();
+  }
+
+  return (
+    <div className="ttt-arena-wrap">
+      {/* Back button only in simple App.js routing (MainApp uses its own back button). */}
+      {setPage && (
+        <button className="ttt-back-btn" onClick={() => setPage("menu")}>
+          ⬅ Back to menu
+        </button>
+      )}
+
+      {/* Decorative background blobs — styling in App.css (.ttt-bg-shape). */}
+      <div className="ttt-bg-shape ttt-shape-one" />
+      <div className="ttt-bg-shape ttt-shape-two" />
+      <div className="ttt-bg-shape ttt-shape-three" />
+
+      <section className="ttt-game-card">
+        <p className="ttt-eyebrow">Mini game</p>
+        <h1 className="ttt-title">Tic Tac Toe Arena</h1>
+        <p className="ttt-subtitle">
+          Pick your shape, play the board, and celebrate the winner.
+        </p>
+
+        {/* Player 1 and Player 2 shape pickers */}
+        <div className="ttt-symbol-panel">
+          <div className="ttt-symbol-picker">
+            <p>Player 1</p>
+            <div className="ttt-symbol-options">
+              {SYMBOL_OPTIONS.map((symbol) => (
+                <button
+                  key={`p1-${symbol}`}
+                  type="button"
+                  className={
+                    symbol === playerOneSymbol
+                      ? "ttt-symbol-btn ttt-symbol-btn-active"
+                      : "ttt-symbol-btn"
+                  }
+                  onClick={() => handleSymbolChange(1, symbol)}
+                  disabled={symbol === playerTwoSymbol}
+                >
+                  {symbol}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="ttt-symbol-picker">
+            <p>Player 2</p>
+            <div className="ttt-symbol-options">
+              {SYMBOL_OPTIONS.map((symbol) => (
+                <button
+                  key={`p2-${symbol}`}
+                  type="button"
+                  className={
+                    symbol === playerTwoSymbol
+                      ? "ttt-symbol-btn ttt-symbol-btn-active"
+                      : "ttt-symbol-btn"
+                  }
+                  onClick={() => handleSymbolChange(2, symbol)}
+                  disabled={symbol === playerOneSymbol}
+                >
+                  {symbol}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <p
+          className={
+            winner ? "ttt-status ttt-winner-status" : "ttt-status"
+          }
+        >
+          {statusText}
+        </p>
+
+        {/* 3x3 board — winning squares get .ttt-winning-square for glow */}
+        <div className="ttt-board">
+          {board.map((cellValue, index) => (
+            <button
+              key={index}
+              type="button"
+              className={
+                winningLine.includes(index)
+                  ? "ttt-square ttt-winning-square"
+                  : "ttt-square"
+              }
+              onClick={() => handleSquareClick(index)}
+            >
+              {cellValue}
+            </button>
+          ))}
+        </div>
+
+        <button type="button" className="ttt-reset-btn" onClick={resetGame}>
+          Restart Game
+        </button>
+      </section>
     </div>
   );
 }

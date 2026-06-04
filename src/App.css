@@ -101,6 +101,12 @@ body {
   box-shadow: 0 12px 30px rgba(249, 115, 22, 0.35);
 }
 
+/* NEW: fourth menu button style for Tic Tac Toe. */
+.menu-btn:nth-child(4) {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  box-shadow: 0 12px 30px rgba(168, 85, 247, 0.35);
+}
+
 .menu-btn:hover {
   transform: translateY(-1px);
   filter: brightness(1.05);
@@ -817,6 +823,281 @@ body {
   background: #451a03;
 }
 
+/* ================= TIC TAC TOE ARENA (INTERACTIVE) ================= */
+
+/* Outer wrapper: lively gradient behind the glass card. */
+.ttt-arena-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 8px 12px 24px;
+  text-align: center;
+  overflow: hidden;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(129, 140, 248, 0.35), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(45, 212, 191, 0.28), transparent 30%),
+    linear-gradient(135deg, #1e293b 0%, #312e81 55%, #4c1d95 100%);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.85);
+}
+
+/* Optional back button when TicTacToe is used inside simple App.js. */
+.ttt-back-btn {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(15, 23, 42, 0.6);
+  color: #f9fafb;
+  cursor: pointer;
+}
+
+/* Floating decorative shapes (lively background). */
+.ttt-bg-shape {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(2px);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: tttFloat 6s ease-in-out infinite;
+}
+
+.ttt-shape-one {
+  width: 100px;
+  height: 100px;
+  top: 8%;
+  left: 6%;
+  background: rgba(96, 165, 250, 0.5);
+}
+
+.ttt-shape-two {
+  width: 130px;
+  height: 130px;
+  right: 4%;
+  bottom: 10%;
+  background: rgba(244, 114, 182, 0.4);
+  animation-delay: 1.2s;
+}
+
+.ttt-shape-three {
+  width: 80px;
+  height: 80px;
+  right: 18%;
+  top: 12%;
+  background: rgba(52, 211, 153, 0.4);
+  animation-delay: 2s;
+}
+
+/* Glass-style game card (main UI container). */
+.ttt-game-card {
+  position: relative;
+  z-index: 1;
+  width: min(520px, 100%);
+  margin: 0 auto;
+  padding: 28px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.ttt-eyebrow {
+  margin: 0 0 6px;
+  color: #6366f1;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ttt-title {
+  margin: 0;
+  font-size: clamp(1.75rem, 6vw, 2.75rem);
+  line-height: 1.05;
+  color: #172033;
+}
+
+.ttt-subtitle {
+  margin: 12px auto 20px;
+  max-width: 360px;
+  color: #5b6475;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+/* Shape picker: two columns for Player 1 and Player 2. */
+.ttt-symbol-panel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ttt-symbol-picker {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.95);
+}
+
+.ttt-symbol-picker p {
+  margin: 0 0 10px;
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.ttt-symbol-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ttt-symbol-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: white;
+  color: #111827;
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.ttt-symbol-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 18px rgba(79, 70, 229, 0.2);
+}
+
+.ttt-symbol-btn-active {
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  color: white;
+  border-color: transparent;
+}
+
+.ttt-symbol-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+/* Turn / win / draw status pill. */
+.ttt-status {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-weight: 900;
+  font-size: 0.95rem;
+}
+
+/* Congratulations styling when someone wins. */
+.ttt-winner-status {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  animation: tttPop 0.45s ease;
+}
+
+/* 3x3 board with perspective for 3D squares. */
+.ttt-board {
+  display: grid;
+  grid-template-columns: repeat(3, 96px);
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 20px;
+  perspective: 900px;
+}
+
+/* 3D-style square buttons. */
+.ttt-square {
+  width: 96px;
+  height: 96px;
+  border: 0;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #ffffff, #dbeafe);
+  color: #1e1b4b;
+  box-shadow: 0 10px 0 #93c5fd, 0 18px 28px rgba(15, 23, 42, 0.18);
+  font-size: 2.4rem;
+  font-weight: 900;
+  cursor: pointer;
+  transform: rotateX(8deg);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.ttt-square:hover {
+  background: linear-gradient(145deg, #fefce8, #bfdbfe);
+  transform: translateY(-5px) rotateX(8deg) scale(1.03);
+  box-shadow: 0 15px 0 #60a5fa, 0 24px 34px rgba(15, 23, 42, 0.22);
+}
+
+.ttt-square:active {
+  transform: translateY(6px) rotateX(8deg) scale(0.98);
+  box-shadow: 0 4px 0 #60a5fa, 0 10px 18px rgba(15, 23, 42, 0.2);
+}
+
+/* Winning line glow / highlight. */
+.ttt-winning-square {
+  background: linear-gradient(145deg, #fef08a, #fb7185);
+  color: white;
+  box-shadow: 0 10px 0 #be123c, 0 0 26px rgba(251, 113, 133, 0.8);
+  animation: tttWinnerPulse 0.8s ease-in-out infinite alternate;
+}
+
+.ttt-reset-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ttt-reset-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 28px rgba(79, 70, 229, 0.34);
+}
+
+@keyframes tttFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@keyframes tttPop {
+  0% {
+    transform: scale(0.95);
+  }
+  70% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes tttWinnerPulse {
+  from {
+    transform: rotateX(8deg) scale(1);
+  }
+  to {
+    transform: rotateX(8deg) scale(1.08);
+  }
+}
+
 /* RESPONSIVE */
 
 @media (max-width: 900px) {
@@ -872,6 +1153,25 @@ body {
   .hole {
     width: 72px;
     height: 72px;
+  }
+
+  .ttt-symbol-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .ttt-game-card {
+    padding: 22px 16px;
+  }
+
+  .ttt-board {
+    grid-template-columns: repeat(3, 82px);
+    gap: 10px;
+  }
+
+  .ttt-square {
+    width: 82px;
+    height: 82px;
+    font-size: 2rem;
   }
 }
 

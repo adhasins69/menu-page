@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+// Import the Tic Tac Toe game component from App.js (keeps game logic in one place).
+import { TicTacToe } from "./App";
 import photo1 from "./assests/photo1.webp";
 import photo2 from "./assests/photo2.webp";
 import photo3 from "./assests/photo3.webp";
@@ -24,6 +26,8 @@ function App() {
       {page === "dashboard" && <Dashboard />}
       {page === "carousel" && <Carousel />}
       {page === "game" && <WhackAMole />}
+      {/* NEW: render Tic Tac Toe when the menu sets page to "tictactoe". */}
+      {page === "tictactoe" && <TicTacToe />}
     </div>
   );
 }
@@ -45,6 +49,10 @@ function Menu({ setPage }) {
         </button>
         <button className="menu-btn" onClick={() => setPage("game")}>
           🐹 Whack A Mole
+        </button>
+        {/* NEW: fourth menu item opens the Tic Tac Toe page. */}
+        <button className="menu-btn" onClick={() => setPage("tictactoe")}>
+          ⭕ Tic Tac Toe
         </button>
       </div>
     </div>
